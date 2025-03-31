@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Our Wedding Celebration</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Cormorant Garamond", serif;
+      }
+
+      @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Great+Vibes&display=swap");
+
+      body {
+        background-color: #f9f7f7;
+        color: #333;
+        overflow-x: hidden;
+      }
+
+      #canvas-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        z-index: -1;
+      }
+
+      .content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 2rem;
+        text-align: center;
+        background-color: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(5px);
+        border-radius: 10px;
+        margin: 2rem;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        font-family: "Great Vibes", cursive;
+        font-size: 5rem;
+        margin-bottom: 1rem;
+        color: #d4a373;
+      }
+
+      h2 {
+        font-family: "Great Vibes", cursive;
+        font-size: 3rem;
+        margin: 3rem 0 2rem;
+        color: #d4a373;
+      }
+
+      .names {
+        font-size: 3.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .date {
+        font-size: 2rem;
+        margin-bottom: 3rem;
+        letter-spacing: 2px;
+      }
+
+      .details {
+        display: flex;
+        justify-content: space-around;
+        width: 100%;
+        max-width: 900px;
+        margin-bottom: 3rem;
+      }
+
+      .detail-box {
+        background: rgba(255, 255, 255, 0.9);
+        padding: 2rem;
+        border-radius: 10px;
+        width: 30%;
+        text-align: center;
+        transition: transform 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .detail-box:hover {
+        transform: translateY(-10px);
+      }
+
+      .detail-box h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: #d4a373;
+      }
+
+      .detail-box p {
+        font-size: 1.1rem;
+        line-height: 1.6;
+      }
+
+      .rsvp {
+        background: #d4a373;
+        color: white;
+        padding: 1rem 3rem;
+        font-size: 1.2rem;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 2rem;
+        letter-spacing: 2px;
+      }
+
+      .rsvp:hover {
+        background: #c39268;
+        transform: scale(1.05);
+      }
+
+      /* Timeline styles */
+      .timeline-container {
+        width: 100%;
+        max-width: 1000px;
+        margin: 2rem 0 4rem;
+        position: relative;
+      }
+
+      .timeline {
+        position: relative;
+        padding: 2rem 0;
+      }
+
+      .timeline::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 2px;
+        height: 100%;
+        background: #d4a373;
+        transform: translateX(-50%);
+      }
+
+      .timeline-item {
+        display: flex;
+        justify-content: flex-end;
+        padding-right: 50%;
+        position: relative;
+        margin-bottom: 4rem;
+        opacity: 0;
+        transform: translateY(50px);
+        transition: all 0.8s ease;
+      }
+
+      .timeline-item.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .timeline-item:nth-child(even) {
+        justify-content: flex-start;
+        padding-right: 0;
+        padding-left: 50%;
+      }
+
+      .timeline-item-content {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        width: 80%;
+        max-width: 400px;
+        text-align: left;
+        position: relative;
+      }
+
+      .timeline-item-content::after {
+        content: "";
+        position: absolute;
+        top: 20px;
+        right: -15px;
+        width: 30px;
+        height: 30px;
+        background: white;
+        transform: rotate(45deg);
+        box-shadow: 2px -2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .timeline-item:nth-child(even) .timeline-item-content::after {
+        right: auto;
+        left: -15px;
+        box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .timeline-item-date {
+        color: #d4a373;
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .timeline-item-title {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .timeline-marker {
+        background: #d4a373;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1;
+        border: 4px solid white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Photo Gallery Styles */
+      .gallery-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 2rem 0 4rem;
+      }
+
+      .gallery-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+      }
+
+      .gallery-controls {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .google-drive-input {
+        width: 100%;
+        max-width: 600px;
+        padding: 1rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+      }
+
+      .google-drive-input input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #d4a373;
+        border-radius: 5px;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+      }
+
+      .google-drive-input button {
+        background: #d4a373;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .google-drive-input button:hover {
+        background: #c39268;
+      }
+
+      .photo-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+        width: 100%;
+      }
+
+      .gallery-item {
+        position: relative;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        height: 250px;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+      }
+
+      .gallery-item:hover {
+        transform: scale(1.03);
+      }
+
+      .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: all 0.3s ease;
+      }
+
+      .fullscreen-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+      }
+
+      .fullscreen-image {
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+      }
+
+      .close-fullscreen {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        color: white;
+        font-size: 2rem;
+        cursor: pointer;
+      }
+
+      .nav-fullscreen {
+        position: absolute;
+        color: white;
+        font-size: 3rem;
+        cursor: pointer;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .prev-fullscreen {
+        left: 20px;
+      }
+
+      .next-fullscreen {
+        right: 20px;
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 3.5rem;
+        }
+
+        .names {
+          font-size: 2.5rem;
+        }
+
+        .date {
+          font-size: 1.5rem;
+        }
+
+        .details {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .detail-box {
+          width: 90%;
+          margin-bottom: 1.5rem;
+        }
+
+        .timeline::before {
+          left: 20px;
+        }
+
+        .timeline-item,
+        .timeline-item:nth-child(even) {
+          padding-right: 0;
+          padding-left: 60px;
+          justify-content: flex-start;
+        }
+
+        .timeline-marker {
+          left: 20px;
+        }
+
+        .timeline-item-content,
+        .timeline-item:nth-child(even) .timeline-item-content {
+          width: 100%;
+        }
+
+        .timeline-item-content::after,
+        .timeline-item:nth-child(even) .timeline-item-content::after {
+          display: none;
+        }
+
+        .photo-gallery {
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+
+        .gallery-item {
+          height: 150px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="canvas-container"></div>
+
+    <div class="content">
+      <h1>We're Getting Married</h1>
+      <div class="names">Sarah & Michael</div>
+      <div class="date">JUNE 15, 2025</div>
+
+      <div class="details">
+        <div class="detail-box">
+          <h3>Ceremony</h3>
+          <p>
+            2:00 PM<br />St. Mary's Church<br />123 Wedding Lane<br />Love City
+          </p>
+        </div>
+
+        <div class="detail-box">
+          <h3>Reception</h3>
+          <p>
+            5:00 PM<br />Grand Ballroom<br />456 Celebration Ave<br />Love City
+          </p>
+        </div>
+
+        <div class="detail-box">
+          <h3>Dress Code</h3>
+          <p>
+            Formal Attire<br />Black Tie Optional<br />Garden Friendly Shoes
+          </p>
+        </div>
+      </div>
+
+      <h2>Our Love Story</h2>
+      <div class="timeline-container">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-item-content">
+              <div class="timeline-item-date">June 5, 2020</div>
+              <div class="timeline-item-title">The First Meeting</div>
+              <p>
+                We met at a coffee shop downtown. Michael spilled his coffee on
+                Sarah's favorite book, and the rest is history.
+              </p>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-item-content">
+              <div class="timeline-item-date">December 24, 2020</div>
+              <div class="timeline-item-title">First Date</div>
+              <p>
+                We went ice skating and shared our first kiss under the
+                Christmas lights.
+              </p>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-item-content">
+              <div class="timeline-item-date">August 15, 2022</div>
+              <div class="timeline-item-title">Moving In Together</div>
+              <p>
+                After two wonderful years, we decided to share our first home
+                together.
+              </p>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-item-content">
+              <div class="timeline-item-date">February 14, 2024</div>
+              <div class="timeline-item-title">The Proposal</div>
+              <p>
+                Michael proposed during a surprise vacation to Paris, right in
+                front of the Eiffel Tower.
+              </p>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-item-content">
+              <div class="timeline-item-date">June 15, 2025</div>
+              <div class="timeline-item-title">Wedding Day</div>
+              <p>The day we officially start our forever together.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2>Our Photo Gallery</h2>
+      <div class="gallery-container">
+        <div class="photo-gallery" id="photoGallery">        
+        </div>
+      </div>
+
+      <div class="fullscreen-overlay" id="fullscreenOverlay">
+        <span class="close-fullscreen" id="closeFullscreen">&times;</span>
+        <span class="nav-fullscreen prev-fullscreen" id="prevFullscreen"
+          >&#10094;</span
+        >
+        <img
+          src=""
+          alt="fullscreen"
+          class="fullscreen-image"
+          id="fullscreenImage"
+        />
+        <span class="nav-fullscreen next-fullscreen" id="nextFullscreen"
+          >&#10095;</span
+        >
+      </div>
+
+      <button class="rsvp">RSVP NOW</button>
+    </div>
+
+    <script>
+      // Three.js 3D background
+      const container = document.getElementById("canvas-container");
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+      });
+
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      container.appendChild(renderer.domElement);
+
+      // Create floating hearts
+      const hearts = [];
+      const heartGeometry = new THREE.TorusGeometry(1, 0.4, 16, 100);
+
+      function createHeart(x, y, z, scale, color) {
+        const heartMaterial = new THREE.MeshBasicMaterial({ color: color });
+        const heart = new THREE.Mesh(heartGeometry, heartMaterial);
+        heart.position.set(x, y, z);
+        heart.scale.set(scale, scale, scale);
+        heart.rotation.x = Math.PI / 2;
+        scene.add(heart);
+        hearts.push({
+          mesh: heart,
+          speed: 0.005 + Math.random() * 0.01,
+          rotSpeed: 0.01 + Math.random() * 0.02,
+          direction: new THREE.Vector3(
+            Math.random() * 0.02 - 0.01,
+            Math.random() * 0.02 - 0.01,
+            Math.random() * 0.02 - 0.01
+          ),
+        });
+      }
+
+      // Create multiple hearts with different colors
+      const colors = [0xd4a373, 0xfaedcd, 0xe9edc9, 0xccd5ae, 0xd4a373];
+
+      for (let i = 0; i < 20; i++) {
+        const x = Math.random() * 40 - 20;
+        const y = Math.random() * 40 - 20;
+        const z = Math.random() * 20 - 35;
+        const scale = 0.2 + Math.random() * 0.3;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        createHeart(x, y, z, scale, color);
+      }
+
+      // Add soft ambient light
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
+
+      // Position camera
+      camera.position.z = 15;
+
+      // Create floating particles
+      const particlesGeometry = new THREE.BufferGeometry();
+      const particlesCount = 500;
+
+      const posArray = new Float32Array(particlesCount * 3);
+      for (let i = 0; i < particlesCount * 3; i++) {
+        posArray[i] = (Math.random() - 0.5) * 50;
+      }
+
+      particlesGeometry.setAttribute(
+        "position",
+        new THREE.BufferAttribute(posArray, 3)
+      );
+
+      const particlesMaterial = new THREE.PointsMaterial({
+        size: 0.1,
+        color: 0xd4a373,
+        transparent: true,
+        opacity: 0.8,
+      });
+
+      const particlesMesh = new THREE.Points(
+        particlesGeometry,
+        particlesMaterial
+      );
+      scene.add(particlesMesh);
+
+      // Animation loop
+      function animate() {
+        requestAnimationFrame(animate);
+
+        // Animate hearts
+        hearts.forEach((heart) => {
+          heart.mesh.rotation.z += heart.rotSpeed;
+          heart.mesh.position.x += heart.direction.x;
+          heart.mesh.position.y += heart.direction.y;
+          heart.mesh.position.z += heart.direction.z;
+
+          // Reset position if heart goes out of bounds
+          if (heart.mesh.position.x > 25 || heart.mesh.position.x < -25) {
+            heart.direction.x *= -1;
+          }
+          if (heart.mesh.position.y > 25 || heart.mesh.position.y < -25) {
+            heart.direction.y *= -1;
+          }
+          if (heart.mesh.position.z > 5 || heart.mesh.position.z < -45) {
+            heart.direction.z *= -1;
+          }
+        });
+
+        // Rotate particles
+        particlesMesh.rotation.x += 0.0003;
+        particlesMesh.rotation.y += 0.0005;
+
+        renderer.render(scene, camera);
+      }
+
+      // Handle window resize
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      // Initialize animation
+      animate();
+
+      // Timeline animation on scroll
+      function animateTimeline() {
+        const timelineItems = document.querySelectorAll(".timeline-item");
+        timelineItems.forEach((item) => {
+          const position = item.getBoundingClientRect().top;
+          const screenPosition = window.innerHeight / 1.2;
+
+          if (position < screenPosition) {
+            item.classList.add("visible");
+          }
+        });
+      }
+
+      window.addEventListener("scroll", animateTimeline);
+      // Initial check on page load
+      window.addEventListener("load", animateTimeline);
+
+      // Google Drive Image Loading
+      function init() {
+        loadGoogleDriveImages();
+      }
+
+      function loadGoogleDriveImages() {
+        // Clear existing gallery
+        const gallery = document.getElementById("photoGallery");
+        const apiKey = "AIzaSyAetKFQKY432FOBO8K0y7eNQ-jbBI1Y5I8"; // your public API key
+        const folderId = "1chkXttXYwUmcT1QEniE7qddic9HySYOv";
+        const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+mimeType contains 'image/'&key=${apiKey}&fields=files(id,name,mimeType)`;
+
+        fetch(url)
+          .then((res) => res.json())
+          .then((data) => {
+            data.files.forEach((file, index) => {
+              const galleryItem = document.createElement("div");
+              galleryItem.className = "gallery-item";
+              galleryItem.innerHTML = `<img src="https://drive.google.com/thumbnail?id=${
+                file.id
+              }" alt="Wedding Photo ${index + 1}" data-index="${index}">`;
+
+              // Add click event to open fullscreen
+              galleryItem.addEventListener("click", function () {
+                openFullscreen(url, index);
+              });
+
+              gallery.appendChild(galleryItem);
+            });
+          })
+          .catch((err) => {
+            console.error("Error loading images:", err);
+            document.getElementById("image-gallery").innerText =
+              "Failed to load images. See console.";
+          });
+      }
+
+      // Fullscreen gallery functionality
+      let currentImageIndex = 0;
+
+      function openFullscreen(imageUrl, index) {
+        const overlay = document.getElementById("fullscreenOverlay");
+        const fullscreenImage = document.getElementById("fullscreenImage");
+
+        fullscreenImage.src = imageUrl;
+        currentImageIndex = index;
+
+        overlay.style.display = "flex";
+        document.body.style.overflow = "hidden";
+      }
+
+      document
+        .getElementById("closeFullscreen")
+        .addEventListener("click", function () {
+          document.getElementById("fullscreenOverlay").style.display = "none";
+          document.body.style.overflow = "auto";
+        });
+
+      document
+        .getElementById("prevFullscreen")
+        .addEventListener("click", function () {
+          if (!window.galleryImages) return;
+
+          currentImageIndex =
+            (currentImageIndex - 1 + window.galleryImages.length) %
+            window.galleryImages.length;
+          document.getElementById("fullscreenImage").src =
+            window.galleryImages[currentImageIndex];
+        });
+
+      document
+        .getElementById("nextFullscreen")
+        .addEventListener("click", function () {
+          if (!window.galleryImages) return;
+
+          currentImageIndex =
+            (currentImageIndex + 1) % window.galleryImages.length;
+          document.getElementById("fullscreenImage").src =
+            window.galleryImages[currentImageIndex];
+        });
+
+      // RSVP Button Functionality
+      document.querySelector(".rsvp").addEventListener("click", function () {
+        alert("RSVP feature coming soon! Please check back later.");
+      });
+      init();
+    </script>
+  </body>
+</html>
