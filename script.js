@@ -634,10 +634,10 @@ function createAnimatedBanner() {
   banner.innerHTML = `
     <div style="display: flex; justify-content: center; align-items: center; gap: 15px;">
       <span style="font-family: 'Great Vibes', cursive; font-size: 24px; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
-        Sarah & Michael
+        Nguyen Hội & Thanh Hương
       </span>
       <span style="font-size: 16px; color: #fff; font-weight: bold;">
-        JUNE 15, 2025
+        APRIL 27, 2025
       </span>
       <span style="font-size: 16px; color: #fff; border: 1px solid #fff; padding: 5px 15px; border-radius: 20px;">
         Save the Date
