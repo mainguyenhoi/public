@@ -669,3 +669,42 @@ function createAnimatedBanner() {
     lastScrollTop = scrollTop;
   });
 }
+// Add countdown timer functionality for April 27, 2025
+function updateCountdown() {
+    const weddingDate = new Date("April 27, 2025 14:00:00").getTime(); // 2:00 PM on April 27, 2025
+    const now = new Date().getTime();
+    const timeLeft = weddingDate - now;
+  
+    // Calculate time units
+    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+  
+    // Update countdown elements
+    document.getElementById("days").textContent = days.toString().padStart(2, "0");
+    document.getElementById("hours").textContent = hours.toString().padStart(2, "0");
+    document.getElementById("minutes").textContent = minutes.toString().padStart(2, "0");
+    document.getElementById("seconds").textContent = seconds.toString().padStart(2, "0");
+  
+    // If countdown is finished
+    if (timeLeft < 0) {
+      clearInterval(countdownInterval);
+      document.getElementById("days").textContent = "00";
+      document.getElementById("hours").textContent = "00";
+      document.getElementById("minutes").textContent = "00";
+      document.getElementById("seconds").textContent = "00";
+      
+      // Update the countdown title to show it's the big day
+      const countdownTitle = document.querySelector(".countdown-container h3");
+      if (countdownTitle) {
+        countdownTitle.textContent = "Today is Our Wedding Day!";
+      }
+    }
+  }
+  
+  // Initialize countdown
+  updateCountdown();
+  
+  // Update the countdown every second
+  const countdownInterval = setInterval(updateCountdown, 1000);
