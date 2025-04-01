@@ -708,3 +708,116 @@ function updateCountdown() {
   
   // Update the countdown every second
   const countdownInterval = setInterval(updateCountdown, 1000);
+
+  // Metro Gallery JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all gallery items
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    
+    // Add click event to open fullscreen view
+    galleryItems.forEach((item, index) => {
+      item.addEventListener('click', function() {
+        openFullscreen(index);
+      });
+    });
+    
+    // Fullscreen functionality
+    function openFullscreen(index) {
+      // Get the overlay element or create it if it doesn't exist
+      let overlay = document.getElementById('fullscreenOverlay');
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'fullscreenOverlay';
+        overlay.className = 'fullscreen-overlay';
+        
+        const wrapContent = document.createElement('div');
+        wrapContent.className = 'wrap-content';
+        
+        const closeBtn = document.createElement('span');
+        closeBtn.id = 'closeFullscreen';
+        closeBtn.className = 'close-fullscreen';
+        closeBtn.innerHTML = '&times;';
+        closeBtn.addEventListener('click', closeFullscreen);
+        
+        const prevBtn = document.createElement('span');
+        prevBtn.id = 'prevFullscreen';
+        prevBtn.className = 'nav-fullscreen prev-fullscreen';
+        prevBtn.innerHTML = '&#10094;';
+        prevBtn.addEventListener('click', () => navigateFullscreen('prev'));
+        
+        const nextBtn = document.createElement('span');
+        nextBtn.id = 'nextFullscreen';
+        nextBtn.className = 'nav-fullscreen next-fullscreen';
+        nextBtn.innerHTML = '&#10095;';
+        nextBtn.addEventListener('click', () => navigateFullscreen('next'));
+        
+        const image = document.createElement('img');
+        image.id = 'fullscreenImage';
+        image.className = 'fullscreen-image';
+        
+        wrapContent.appendChild(closeBtn);
+        wrapContent.appendChild(prevBtn);
+        wrapContent.appendChild(image);
+        wrapContent.appendChild(nextBtn);
+        overlay.appendChild(wrapContent);
+        document.body.appendChild(overlay);
+      }
+      
+      // Set current image index
+      overlay.dataset.currentIndex = index;
+      
+      // Get images src
+      const images = Array.from(galleryItems).map(item => item.querySelector('img').src);
+      const currentImage = images[index];
+      
+      // Set image src
+      document.getElementById('fullscreenImage').src = currentImage;
+      
+      // Show overlay
+      overlay.style.display = 'flex';
+      
+      // Disable body scroll
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeFullscreen() {
+      document.getElementById('fullscreenOverlay').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    
+    function navigateFullscreen(direction) {
+      const overlay = document.getElementById('fullscreenOverlay');
+      const totalImages = document.querySelectorAll('.gallery-item').length;
+      let currentIndex = parseInt(overlay.dataset.currentIndex);
+      
+      if (direction === 'prev') {
+        currentIndex = (currentIndex - 1 + totalImages) % totalImages;
+      } else {
+        currentIndex = (currentIndex + 1) % totalImages;
+      }
+      
+      overlay.dataset.currentIndex = currentIndex;
+      
+      // Get the new image src
+      const newSrc = document.querySelectorAll('.gallery-item')[currentIndex].querySelector('img').src;
+      
+      // Apply fade out/in animation
+      const image = document.getElementById('fullscreenImage');
+      image.style.opacity = '0';
+      
+      setTimeout(() => {
+        image.src = newSrc;
+        image.style.opacity = '1';
+      }, 300);
+    }
+    
+    // Close fullscreen on ESC key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        const overlay = document.getElementById('fullscreenOverlay');
+        if (overlay && overlay.style.display === 'flex') {
+          closeFullscreen();
+        }
+      }
+    });
+  });
