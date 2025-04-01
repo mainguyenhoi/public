@@ -821,3 +821,19 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
+
+  const toggleBtn = document.getElementById('toggleMusicBtn');
+  const audio = document.getElementById('weddingAudio');
+  let isPlaying = false;
+
+  toggleBtn.addEventListener('click', () => {
+    if (isPlaying) {
+      audio.pause();
+      toggleBtn.innerText = '🔊 Turn Music On';
+    } else {
+      audio.play();
+      toggleBtn.innerText = '🔇 Turn Music Off';
+    }
+    isPlaying = !isPlaying;
+  });
+  
