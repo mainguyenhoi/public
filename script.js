@@ -450,7 +450,7 @@ function loadGoogleDriveImages() {
   // Counter to set proper delays
   let successCount = 0;
   
-  for (var i = 1; i < 1000; i++) {
+  for (var i = 1; i <= 120; i++) {
     const url = `./images/${i}.JPG`;
     const currentIndex = i;
     
