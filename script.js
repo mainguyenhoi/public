@@ -451,7 +451,7 @@ function loadGoogleDriveImages() {
   let successCount = 0;
   
   for (var i = 1; i < 1000; i++) {
-    const url = `./images/${i}.jpg`;
+    const url = `./images/${i}.JPG`;
     const currentIndex = i;
     
     imageExists(url, function (exists) {
